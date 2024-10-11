@@ -6,6 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const connection_js_1 = require("./connection.js");
 const inquirer_1 = __importDefault(require("inquirer"));
 (0, connection_js_1.connectToDb)();
+function startCLI() {
+    askForViewChoice();
+}
+;
 // Prompt user for data using Inquirer
 function askForViewChoice() {
     inquirer_1.default
@@ -20,6 +24,7 @@ function askForViewChoice() {
         .then((answers) => {
         if (answers.selectedView === "View all departments") {
             console.log("viewing departments");
+            getAllDepartments();
         }
         else if (answers.selectedView === "View all roles") {
             console.log("vieweing all roles");
@@ -39,17 +44,20 @@ function askForViewChoice() {
         else {
             console.log("update an employee");
         }
-        console.log(`console.logging the answers ${answers}`);
-        const sql = `SELECT * FROM department`;
-        connection_js_1.pool.query(sql, (err, result) => {
-            if (err) {
-                console.error('Error updating record:', err);
-            }
-            else {
-                console.log(`console.logging the result ${result}`);
-            }
-        });
+        console.log(`console.logging the answers ${answers.selectedView}`);
+        //return;  
     });
 }
 ;
-askForViewChoice();
+function getAllDepartments() {
+    connection_js_1.pool.query('SELECT * FROM department', (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        else if (result) {
+            console.table(result.rows);
+        }
+    });
+}
+;
+startCLI();

@@ -3,7 +3,10 @@ import { pool, connectToDb } from './connection.js';
 import inquirer from 'inquirer';
 
 connectToDb();
-
+  
+function startCLI() {
+    askForViewChoice(); 
+};
 
 // Prompt user for data using Inquirer
 function askForViewChoice(): void {
@@ -19,6 +22,7 @@ function askForViewChoice(): void {
         .then ((answers) => {
             if(answers.selectedView === "View all departments") {
                 console.log("viewing departments"); 
+                getAllDepartments(); 
             } else if (answers.selectedView === "View all roles") {
                 console.log("vieweing all roles"); 
             } else if (answers.selectedView === "View all employees") {
@@ -33,20 +37,23 @@ function askForViewChoice(): void {
                 console.log("update an employee")
             }
 
-            console.log(`console.logging the answers ${answers}`); 
+            
+            console.log(`console.logging the answers ${answers.selectedView}`); 
+           //return;  
 
-            const sql = `SELECT * FROM department`;
-
-            pool.query(sql, (err: Error, result: QueryResult) => {
-              if (err) {
-                console.error('Error updating record:', err);
-              } else {
-                console.log(`console.logging the result ${result}`); 
-              }
-               
-            });
         });
 }; 
 
-askForViewChoice()
 
+
+function getAllDepartments () {
+    pool.query('SELECT * FROM department', (err: Error, result: QueryResult) => {
+        if (err) {
+          console.log(err);
+        } else if (result) {
+          console.table(result.rows);
+        }
+      });
+};
+
+startCLI();
