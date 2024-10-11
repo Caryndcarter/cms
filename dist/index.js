@@ -46,7 +46,7 @@ function askForViewChoice() {
                 console.error('Error updating record:', err);
             }
             else {
-                console.log(`console.logging the answers ${result}`);
+                console.log(`console.logging the result ${result}`);
             }
         });
     });

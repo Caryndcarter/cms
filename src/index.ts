@@ -5,8 +5,6 @@ import inquirer from 'inquirer';
 connectToDb();
 
 
-
-
 // Prompt user for data using Inquirer
 function askForViewChoice(): void {
     inquirer   
@@ -43,7 +41,7 @@ function askForViewChoice(): void {
               if (err) {
                 console.error('Error updating record:', err);
               } else {
-                console.log(`console.logging the answers ${result}`); 
+                console.log(`console.logging the result ${result}`); 
               }
                
             });
