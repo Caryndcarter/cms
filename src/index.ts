@@ -35,7 +35,18 @@ function askForViewChoice(): void {
                 console.log("update an employee")
             }
 
-            console.log(answers); 
+            console.log(`console.logging the answers ${answers}`); 
+
+            const sql = `SELECT * FROM department`;
+
+            pool.query(sql, (err: Error, result: QueryResult) => {
+              if (err) {
+                console.error('Error updating record:', err);
+              } else {
+                console.log(`console.logging the answers ${result}`); 
+              }
+               
+            });
         });
 }; 
 
