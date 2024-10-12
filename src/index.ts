@@ -6,9 +6,45 @@ connectToDb();
   
 function startCLI() {
     askForViewChoice(); 
+
 };
 
-// Prompt user for data using Inquirer
+
+
+function getAllDepartments () {
+    pool.query('SELECT * FROM department', (err: Error, result: QueryResult) => {
+        if (err) {
+          console.log(err);
+        } else if (result) {
+          console.table(result.rows);
+        }
+      });
+};
+
+
+function getAllRoles () {
+    pool.query('SELECT role.id, role.title , role.salary, department.name as department_name FROM role JOIN department ON role.department = department.id', (err: Error, result: QueryResult) => {
+        if (err) {
+          console.log(err);
+        } else if (result) {
+          console.table(result.rows);
+        }
+      });
+};
+
+function getallEmployees () {
+    pool.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary FROM employee JOIN role ON employee.role_id = role.id', (err: Error, result: QueryResult) => {
+        if (err) {
+          console.log(err);
+        } else if (result) {
+          console.table(result.rows);
+        }
+      });
+};
+
+
+
+
 function askForViewChoice(): void {
     inquirer   
         .prompt ([
@@ -21,12 +57,14 @@ function askForViewChoice(): void {
         ])
         .then ((answers) => {
             if(answers.selectedView === "View all departments") {
-                console.log("viewing departments"); 
+                console.log("Viewing departments"); 
                 getAllDepartments(); 
             } else if (answers.selectedView === "View all roles") {
-                console.log("vieweing all roles"); 
+                console.log("Vieweing all roles"); 
+                getAllRoles(); 
             } else if (answers.selectedView === "View all employees") {
                 console.log("vieweing all employees"); 
+                getallEmployees(); 
             } else if (answers.selectedView === "Add a department") {
                 console.log("add department"); 
             } else if (answers.selectedView === "Add a role") {
@@ -46,14 +84,5 @@ function askForViewChoice(): void {
 
 
 
-function getAllDepartments () {
-    pool.query('SELECT * FROM department', (err: Error, result: QueryResult) => {
-        if (err) {
-          console.log(err);
-        } else if (result) {
-          console.table(result.rows);
-        }
-      });
-};
 
 startCLI();
