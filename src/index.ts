@@ -33,7 +33,7 @@ function getAllRoles () {
 };
 
 function getallEmployees () {
-    pool.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary FROM employee JOIN role ON employee.role_id = role.id', (err: Error, result: QueryResult) => {
+    pool.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name as department FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department = department.id', (err: Error, result: QueryResult) => {
         if (err) {
           console.log(err);
         } else if (result) {
