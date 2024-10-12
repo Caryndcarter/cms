@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const connection_js_1 = require("./connection.js");
 const inquirer_1 = __importDefault(require("inquirer"));
+//import { get } from 'http';
 (0, connection_js_1.connectToDb)();
 function startCLI() {
     askForChoice();
@@ -34,9 +35,41 @@ function departmentLoop() {
         }
         const departmentNames = [];
         for (const row of result.rows) {
-            departmentNames.push(row.name);
+            departmentNames.push({ name: row.name, value: row.id });
         }
         addRole(departmentNames);
+    });
+}
+function managerLoop() {
+    const sql = 'SELECT * FROM employee';
+    connection_js_1.pool.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        else if (result) {
+            //console.table(result.rows);
+        }
+        const managerNames = [];
+        for (const row of result.rows) {
+            managerNames.push({ name: row.first_name, value: row.id });
+        }
+        roleLoop(managerNames);
+    });
+}
+function roleLoop(managerNames) {
+    const sql = 'SELECT * FROM role';
+    connection_js_1.pool.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        else if (result) {
+            //console.table(result.rows);
+        }
+        const roleNames = [];
+        for (const row of result.rows) {
+            roleNames.push({ name: row.title, value: row.id });
+        }
+        addEmployee(roleNames, managerNames);
     });
 }
 function getRoles() {
@@ -81,10 +114,12 @@ function getAllRoles() {
 }
 ;
 function getallEmployees() {
-    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name as department 
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name as department, m.first_name as manager
         FROM employee 
         JOIN role ON employee.role_id = role.id 
-        JOIN department ON role.department = department.id`;
+        JOIN department ON role.department = department.id
+        JOIN employee m ON employee.manager_id = m.id`;
+    //employee is renamed as manager
     connection_js_1.pool.query(sql, (err, result) => {
         if (err) {
             console.log(err);
@@ -140,21 +175,21 @@ function addRole(departmentNames) {
         }
     ]).then((answer) => {
         console.log(answer.department);
-        const sql = `INSERT INTO role (title, salary) VALUES ($1, $2)`;
-        const params = [answer.role_title, answer.role_salary];
+        const sql = `INSERT INTO role (title, salary, department ) VALUES ($1, $2, $3)`;
+        const params = [answer.role_title, answer.role_salary, answer.department];
         connection_js_1.pool.query(sql, params, (err, result) => {
             if (err) {
                 console.log(err);
             }
             else if (result) {
-                console.log(`Your new department: ${answer.role_title} has been added.`);
-                getRoles();
+                console.log(`Your new role: ${answer.role_title} has been added.`);
+                getAllRoles();
             }
         });
     });
 }
 ;
-function addEmployee() {
+function addEmployee(roleNames, managerNames) {
     inquirer_1.default
         .prompt([
         {
@@ -167,16 +202,28 @@ function addEmployee() {
             name: 'employee_last_name',
             message: 'Enter the last name of the new employee.',
         },
+        {
+            type: 'list',
+            name: 'role',
+            message: 'Enter the role for the employee',
+            choices: roleNames
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'Enter the manager for the employee',
+            choices: managerNames
+        }
     ]).then((answer) => {
-        const sql = `INSERT INTO employee (first_name, last_name) VALUES ($1, $2)`;
-        const params = [answer.employee_first_name, answer.employee_last_name];
+        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)`;
+        const params = [answer.employee_first_name, answer.employee_last_name, answer.manager, answer.role];
         connection_js_1.pool.query(sql, params, (err, result) => {
             if (err) {
                 console.log(err);
             }
             else if (result) {
                 console.log(`Your new employee ${answer.employee_first_name} ${answer.employee_last_name} has been added.`);
-                getEmployees();
+                //getEmployees(); 
                 getallEmployees();
             }
         });
@@ -184,7 +231,6 @@ function addEmployee() {
 }
 ;
 function updateEmployee() {
-    getallEmployees();
 }
 ;
 function quitApp() {
@@ -225,7 +271,7 @@ function askForChoice() {
         }
         else if (answers.selectedView === "Add an employee") {
             console.log("Add an employee");
-            addEmployee();
+            managerLoop();
         }
         else if (answers.selectedView === "Update an employee role") {
             console.log("Update an employee");
