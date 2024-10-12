@@ -42,6 +42,57 @@ function getallEmployees () {
       });
 };
 
+function addDepartment () {
+    inquirer 
+     .prompt ([
+        {
+          type: 'input', 
+          name: 'department', 
+          message: 'Enter the name of a department'
+        }
+    ]).then((answer) => {
+        console.log(answer.department); 
+        const sql = `INSERT INTO department (name) VALUES ($1)`; 
+        const params = [answer.department]; 
+        
+        pool.query(sql, params,(err: Error, result: QueryResult) => {
+            if (err) {
+                console.log(err);
+              } else if (result) {
+                console.log("added");
+              }
+            });    
+    });
+};
+
+
+function addRole () {
+    inquirer 
+    .prompt ([
+       {
+         type: 'input', 
+         name: 'role_title', 
+         message: 'Enter the title of a new role',
+       },
+       {
+        type: 'input',
+        name: 'role_salary',
+        message: 'Enter the salary for the role',
+      },
+   ]).then((answer) => {
+       console.log(answer.role_title); 
+       const sql = `INSERT INTO role (title, salary) VALUES ($1, $2)`; 
+       const params = [answer.role_title, answer.role_salary]; 
+       
+       pool.query(sql, params,(err: Error, result: QueryResult) => {
+           if (err) {
+               console.log(err);
+             } else if (result) {
+               console.log("added");
+             }
+           });    
+   });
+};
 
 
 
@@ -63,12 +114,14 @@ function askForViewChoice(): void {
                 console.log("Vieweing all roles"); 
                 getAllRoles(); 
             } else if (answers.selectedView === "View all employees") {
-                console.log("vieweing all employees"); 
+                console.log("Vieweing all employees"); 
                 getallEmployees(); 
             } else if (answers.selectedView === "Add a department") {
-                console.log("add department"); 
+                console.log("Add department"); 
+                addDepartment(); 
             } else if (answers.selectedView === "Add a role") {
-                console.log("add a role"); 
+                console.log("Add a role"); 
+                addRole(); 
             } else if (answers.selectedView === "Add an employee") {
                 console.log("add an employee"); 
             } else {
