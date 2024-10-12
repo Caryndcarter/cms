@@ -23,8 +23,34 @@ function getAllDepartments() {
     });
 }
 ;
+function getRoles() {
+    const sql = `SELECT * from role`;
+    connection_js_1.pool.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        else if (result) {
+            console.table(result.rows);
+            askForChoice();
+        }
+    });
+}
+;
+function getEmployees() {
+    const sql = `SELECT * from employee`;
+    connection_js_1.pool.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        else if (result) {
+            console.table(result.rows);
+            askForChoice();
+        }
+    });
+}
+;
 function getAllRoles() {
-    const sql = `SELECT role.id, role.title , role.salary, department.name as department_name 
+    const sql = `SELECT role.id, role.title, role.salary, department.name as department_name 
         FROM role 
         JOIN department ON role.department = department.id`;
     connection_js_1.pool.query(sql, (err, result) => {
@@ -63,7 +89,6 @@ function addDepartment() {
             message: 'Enter the name of a department'
         }
     ]).then((answer) => {
-        console.log(answer.department);
         const sql = `INSERT INTO department (name) VALUES ($1)`;
         const params = [answer.department];
         connection_js_1.pool.query(sql, params, (err, result) => {
@@ -92,7 +117,6 @@ function addRole() {
             message: 'Enter the salary for the role',
         },
     ]).then((answer) => {
-        console.log(answer.role_title);
         const sql = `INSERT INTO role (title, salary) VALUES ($1, $2)`;
         const params = [answer.role_title, answer.role_salary];
         connection_js_1.pool.query(sql, params, (err, result) => {
@@ -100,8 +124,8 @@ function addRole() {
                 console.log(err);
             }
             else if (result) {
-                console.log(`Your new role ${answer.role_title} has been added.`);
-                getAllRoles();
+                console.log(`Your new department: ${answer.role_title} has been added.`);
+                getRoles();
             }
         });
     });
@@ -121,7 +145,6 @@ function addEmployee() {
             message: 'Enter the last name of the new employee.',
         },
     ]).then((answer) => {
-        console.log(answer.employee_first_name);
         const sql = `INSERT INTO employee (first_name, last_name) VALUES ($1, $2)`;
         const params = [answer.employee_first_name, answer.employee_last_name];
         connection_js_1.pool.query(sql, params, (err, result) => {
@@ -130,7 +153,7 @@ function addEmployee() {
             }
             else if (result) {
                 console.log(`Your new employee ${answer.employee_first_name} ${answer.employee_last_name} has been added.`);
-                getallEmployees();
+                getEmployees();
             }
         });
     });
@@ -139,10 +162,12 @@ function addEmployee() {
 function updateEmployee() {
     getallEmployees();
 }
+;
 function quitApp() {
     console.log("Exiting the application. Goodbye!");
-    process.exit(0);
+    process.exit(0); // Exit with a success code (0)
 }
+;
 function askForChoice() {
     inquirer_1.default
         .prompt([
@@ -185,7 +210,6 @@ function askForChoice() {
         else {
             quitApp();
         }
-        //return;  
     });
 }
 ;
