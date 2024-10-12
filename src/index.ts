@@ -24,6 +24,28 @@ function getAllDepartments () {
       });
 };
 
+
+function departmentLoop () {
+
+    const sql = 'SELECT * FROM department';
+    pool.query(sql, (err: Error, result: QueryResult) => {
+        if (err) {
+          console.log(err);
+        } else if (result) {
+          //console.table(result.rows);
+        }
+
+     const departmentNames = [];    
+     
+    for (const row of result.rows) {
+        departmentNames.push(row.name); 
+    }
+    addRole(departmentNames);
+
+});
+
+}
+
 function getRoles () {
     const sql = 
     `SELECT * from role`;
@@ -106,7 +128,7 @@ function addDepartment () {
 };
 
 
-function addRole() {
+function addRole(departmentNames: Array<string>) {
     inquirer 
     .prompt ([
        {
@@ -119,7 +141,15 @@ function addRole() {
         name: 'role_salary',
         message: 'Enter the salary for the role',
       },
+      {
+        type: 'list',
+        name: 'department',
+        message: 'Enter the department for the role',
+        choices: departmentNames
+      }
    ]).then((answer) => {
+
+    console.log(answer.department); 
 
     const sql = `INSERT INTO role (title, salary) VALUES ($1, $2)`; 
     const params = [answer.role_title, answer.role_salary]; 
@@ -127,7 +157,7 @@ function addRole() {
         if (err) {
             console.log(err);
           } else if (result) {
-            console.log(`Your new department: ${answer.role_title} has been added.`)
+            console.log(`Your new role: ${answer.role_title} has been added.`)
             getRoles(); 
           }
         }); 
@@ -159,6 +189,7 @@ function addEmployee () {
              } else if (result) {
                console.log(`Your new employee ${answer.employee_first_name} ${answer.employee_last_name} has been added.`);
                getEmployees(); 
+               getallEmployees(); 
              }
            });    
    });
@@ -200,7 +231,7 @@ function askForChoice(): void {
                 addDepartment(); 
             } else if (answers.selectedView === "Add a role") {
                 console.log("Add a role"); 
-                addRole(); 
+                departmentLoop(); 
             } else if (answers.selectedView === "Add an employee") {
                 console.log("Add an employee"); 
                 addEmployee()
