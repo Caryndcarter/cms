@@ -1,11 +1,12 @@
 import { QueryResult } from 'pg';
 import { pool, connectToDb } from './connection.js';
 import inquirer from 'inquirer';
+import { get } from 'http';
 
 connectToDb();
   
 function startCLI() {
-    askForViewChoice(); 
+    askForChoice(); 
 
 };
 
@@ -18,6 +19,7 @@ function getAllDepartments () {
           console.log(err);
         } else if (result) {
           console.table(result.rows);
+          askForChoice(); 
         }
       });
 };
@@ -33,6 +35,7 @@ function getAllRoles () {
           console.log(err);
         } else if (result) {
           console.table(result.rows);
+          askForChoice(); 
         }
       });
 };
@@ -48,7 +51,8 @@ function getallEmployees () {
           console.log(err);
         } else if (result) {
           console.table(result.rows);
-        }
+          askForChoice();
+       }
       });
 };
 
@@ -69,9 +73,11 @@ function addDepartment () {
             if (err) {
                 console.log(err);
               } else if (result) {
-                console.log("added");
+                console.log(`Your new department: ${answer.department} has been added.`)
+                getAllDepartments(); 
               }
-            });    
+            }); 
+   
     });
 };
 
@@ -98,7 +104,8 @@ function addRole () {
            if (err) {
                console.log(err);
              } else if (result) {
-               console.log("added");
+               console.log(`Your new role ${answer.role_title} has been added.`);
+               getAllRoles(); 
              }
            });    
    });
@@ -126,7 +133,8 @@ function addEmployee () {
            if (err) {
                console.log(err);
              } else if (result) {
-               console.log("added");
+               console.log(`Your new employee ${answer.employee_first_name} ${answer.employee_last_name} has been added.`);
+               getallEmployees(); 
              }
            });    
    });
@@ -135,16 +143,22 @@ function addEmployee () {
 
 function updateEmployee () {
     getallEmployees(); 
-}
+};
 
-function askForViewChoice(): void {
+
+function quitApp () {
+    console.log("Exiting the application. Goodbye!");
+    process.exit(0); 
+};
+
+function askForChoice(): void {
     inquirer   
         .prompt ([
             {
                 type: 'list',
                 name: 'selectedView',
                 message: 'What would you like to do?',
-                choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role"], 
+                choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Quit"], 
             }, 
         ])
         .then ((answers) => {
@@ -164,12 +178,16 @@ function askForViewChoice(): void {
                 console.log("Add a role"); 
                 addRole(); 
             } else if (answers.selectedView === "Add an employee") {
-                console.log("add an employee"); 
+                console.log("Add an employee"); 
                 addEmployee()
-            } else {
-                console.log("update an employee")
+            } else if (answers.selectedView === "Update an employee role") {
+                console.log("Update an employee")
                 updateEmployee(); 
+            } else {
+                quitApp();  
             }
+              
+            
 
            //return;  
 
