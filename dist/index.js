@@ -72,6 +72,38 @@ function roleLoop(managerNames) {
         addEmployee(roleNames, managerNames);
     });
 }
+function employeeLoop() {
+    const sql = 'SELECT * FROM employee';
+    connection_js_1.pool.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        else if (result) {
+            //console.table(result.rows);
+        }
+        const employeeNames = [];
+        for (const row of result.rows) {
+            employeeNames.push({ name: row.first_name, value: row.id });
+        }
+        roleLoop2(employeeNames);
+    });
+}
+function roleLoop2(employeeNames) {
+    const sql = 'SELECT * FROM role';
+    connection_js_1.pool.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+        else if (result) {
+            //console.table(result.rows);
+        }
+        const roleNames = [];
+        for (const row of result.rows) {
+            roleNames.push({ name: row.title, value: row.id });
+        }
+        updateEmployee(employeeNames, roleNames);
+    });
+}
 function getRoles() {
     const sql = `SELECT * from role`;
     connection_js_1.pool.query(sql, (err, result) => {
@@ -118,7 +150,7 @@ function getallEmployees() {
         FROM employee 
         JOIN role ON employee.role_id = role.id 
         JOIN department ON role.department = department.id
-        JOIN employee m ON employee.manager_id = m.id`;
+        LEFT JOIN employee m ON employee.manager_id = m.id`;
     //employee is renamed as manager
     connection_js_1.pool.query(sql, (err, result) => {
         if (err) {
@@ -230,7 +262,35 @@ function addEmployee(roleNames, managerNames) {
     });
 }
 ;
-function updateEmployee() {
+function updateEmployee(employeeNames, roleNames) {
+    inquirer_1.default
+        .prompt([
+        {
+            type: 'list',
+            name: 'employee',
+            message: 'Select the employee whose role you want to update.',
+            choices: employeeNames
+        },
+        {
+            type: 'list',
+            name: 'role',
+            message: 'Enter the role you want to update it to',
+            choices: roleNames
+        }
+    ]).then((answer) => {
+        const sql = `UPDATE employee SET role_id = $1 WHERE id = $2`;
+        const params = [answer.role, answer.employee];
+        connection_js_1.pool.query(sql, params, (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+            else if (result) {
+                console.log(`Your employee has been given the new role.`);
+                getEmployees();
+                getallEmployees();
+            }
+        });
+    });
 }
 ;
 function quitApp() {
@@ -275,7 +335,7 @@ function askForChoice() {
         }
         else if (answers.selectedView === "Update an employee role") {
             console.log("Update an employee");
-            updateEmployee();
+            employeeLoop();
         }
         else {
             quitApp();
