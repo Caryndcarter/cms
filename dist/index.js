@@ -11,7 +11,8 @@ function startCLI() {
 }
 ;
 function getAllDepartments() {
-    connection_js_1.pool.query('SELECT * FROM department', (err, result) => {
+    const sql = 'SELECT * FROM department';
+    connection_js_1.pool.query(sql, (err, result) => {
         if (err) {
             console.log(err);
         }
@@ -22,7 +23,10 @@ function getAllDepartments() {
 }
 ;
 function getAllRoles() {
-    connection_js_1.pool.query('SELECT role.id, role.title , role.salary, department.name as department_name FROM role JOIN department ON role.department = department.id', (err, result) => {
+    const sql = `SELECT role.id, role.title , role.salary, department.name as department_name 
+        FROM role 
+        JOIN department ON role.department = department.id`;
+    connection_js_1.pool.query(sql, (err, result) => {
         if (err) {
             console.log(err);
         }
@@ -33,7 +37,11 @@ function getAllRoles() {
 }
 ;
 function getallEmployees() {
-    connection_js_1.pool.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name as department FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department = department.id', (err, result) => {
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name as department 
+        FROM employee 
+        JOIN role ON employee.role_id = role.id 
+        JOIN department ON role.department = department.id`;
+    connection_js_1.pool.query(sql, (err, result) => {
         if (err) {
             console.log(err);
         }
@@ -94,6 +102,37 @@ function addRole() {
     });
 }
 ;
+function addEmployee() {
+    inquirer_1.default
+        .prompt([
+        {
+            type: 'input',
+            name: 'employee_first_name',
+            message: 'Enter the first name of the new employee.',
+        },
+        {
+            type: 'input',
+            name: 'employee_last_name',
+            message: 'Enter the last name of the new employee.',
+        },
+    ]).then((answer) => {
+        console.log(answer.employee_first_name);
+        const sql = `INSERT INTO employee (first_name, last_name) VALUES ($1, $2)`;
+        const params = [answer.employee_first_name, answer.employee_last_name];
+        connection_js_1.pool.query(sql, params, (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+            else if (result) {
+                console.log("added");
+            }
+        });
+    });
+}
+;
+function updateEmployee() {
+    getallEmployees();
+}
 function askForViewChoice() {
     inquirer_1.default
         .prompt([
@@ -127,11 +166,12 @@ function askForViewChoice() {
         }
         else if (answers.selectedView === "Add an employee") {
             console.log("add an employee");
+            addEmployee();
         }
         else {
             console.log("update an employee");
+            updateEmployee();
         }
-        console.log(`console.logging the answers ${answers.selectedView}`);
         //return;  
     });
 }
