@@ -383,31 +383,8 @@ function roleLoop2 (employeeNames : any) {
 }
 
 
-function getRoles () {
-    const sql = 
-    `SELECT * from role`;
-    pool.query(sql, (err: Error, result: QueryResult) => {
-        if (err) {
-        console.log(err);
-        } else if (result) {
-        console.table(result.rows);
-        askForChoice(); 
-        }
-  });
-};
-
-function getEmployees () {
-    const sql = 
-    `SELECT * from employee`;
-    pool.query(sql, (err: Error, result: QueryResult) => {
-        if (err) {
-        console.log(err);
-        } else if (result) {
-        console.table(result.rows);
-        askForChoice(); 
-        }
-  });
-};
-
+/*********************
+ LAUNCH APP
+*********************/
 
 askForChoice();
