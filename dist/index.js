@@ -208,7 +208,7 @@ function addEmployee(roleNames, managerNames) {
         }
     ]).then((answer) => {
         const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)`;
-        const params = [answer.employee_first_name, answer.employee_last_name, answer.manager, answer.role];
+        const params = [answer.employee_first_name, answer.employee_last_name, answer.role, answer.manager];
         //answer.role and answer.manager will come through as a numeric values, the id because of how inquirer will process that object
         connection_js_1.pool.query(sql, params, (err, result) => {
             if (err) {
@@ -288,7 +288,8 @@ function managerLoop() {
         }
         const managerNames = [];
         for (const row of result.rows) {
-            managerNames.push({ name: row.first_name, value: row.id });
+            const newName = `${row.first_name} ${row.last_name}`;
+            managerNames.push({ name: newName, value: row.id });
         }
         roleLoop(managerNames);
     });
@@ -322,7 +323,8 @@ function employeeLoop() {
         }
         const employeeNames = [];
         for (const row of result.rows) {
-            employeeNames.push({ name: row.first_name, value: row.id });
+            const newName = `${row.first_name} ${row.last_name}`;
+            employeeNames.push({ name: newName, value: row.id });
         }
         roleLoop2(employeeNames);
     });
