@@ -142,9 +142,9 @@ function addRole(departmentNames) {
             choices: departmentNames
         }
     ]).then((answer) => {
-        console.log(answer.department);
         const sql = `INSERT INTO role (title, salary, department ) VALUES ($1, $2, $3)`;
         const params = [answer.role_title, answer.role_salary, answer.department];
+        //answer.department will come through as a numeric value, the id because of how inquirer will process that object
         connection_js_1.pool.query(sql, params, (err, result) => {
             if (err) {
                 console.log(err);
@@ -162,7 +162,7 @@ function addRole(departmentNames) {
 *********************/
 //Get all employees, display them and start the app over again. 
 function getallEmployees() {
-    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name as department, m.first_name as manager
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name as department, m.first_name as manager_first_name, m.last_name as manager_last_name
         FROM employee 
         JOIN role ON employee.role_id = role.id 
         JOIN department ON role.department = department.id
@@ -209,6 +209,7 @@ function addEmployee(roleNames, managerNames) {
     ]).then((answer) => {
         const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)`;
         const params = [answer.employee_first_name, answer.employee_last_name, answer.manager, answer.role];
+        //answer.role and answer.manager will come through as a numeric values, the id because of how inquirer will process that object
         connection_js_1.pool.query(sql, params, (err, result) => {
             if (err) {
                 console.log(err);
@@ -216,7 +217,6 @@ function addEmployee(roleNames, managerNames) {
             else if (result) {
                 console.log(`Your new employee ${answer.employee_first_name} ${answer.employee_last_name} has been added.`);
                 //display all employees to verify that the employee has been added. 
-                //getEmployees(); 
                 getallEmployees();
             }
         });
@@ -242,6 +242,7 @@ function updateEmployee(employeeNames, roleNames) {
     ]).then((answer) => {
         const sql = `UPDATE employee SET role_id = $1 WHERE id = $2`;
         const params = [answer.role, answer.employee];
+        //answer.role and answer.employee will come through as a numeric values, the id because of how inquirer will process that object
         connection_js_1.pool.query(sql, params, (err, result) => {
             if (err) {
                 console.log(err);
